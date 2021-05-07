@@ -1,0 +1,6 @@
+**/target/
+Dockerfile
+docker-compose.yml
+.idea/
+.env_a
+.env_b

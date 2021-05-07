@@ -1,0 +1,13 @@
+# Properties
+create-custom-resource --restype java.util.Properties --factoryclass org.glassfish.resources.custom.factory.PropertiesFactory --property "org.glassfish.resources.custom.factory.PropertiesFactory.fileName=/opt/config/sormas.properties" sormas/Properties
+# JDBC pool
+create-jdbc-connection-pool --restype javax.sql.ConnectionPoolDataSource --datasourceclassname org.postgresql.ds.PGConnectionPoolDataSource --isconnectvalidatereq true --validationmethod custom-validation --validationclassname org.glassfish.api.jdbc.validation.PostgresConnectionValidation --maxpoolsize ${ENV=DB_JDBC_MAXPOOLSIZE} --property "portNumber=${ENV=DB_PORT}:databaseName=${ENV=DB_NAME}:serverName=${ENV=DB_HOST}:user=${ENV=DB_USER}:password=${ENV=DB_PW}" sormasDataPool
+create-jdbc-resource --connectionpoolid sormasDataPool jdbc/sormasDataPool
+# Pool for audit log
+create-jdbc-connection-pool --restype javax.sql.XADataSource --datasourceclassname org.postgresql.xa.PGXADataSource --isconnectvalidatereq true --validationmethod custom-validation --validationclassname org.glassfish.api.jdbc.validation.PostgresConnectionValidation --maxpoolsize ${ENV=DB_JDBC_MAXPOOLSIZE} --property "portNumber=${ENV=DB_PORT}:databaseName=${ENV=DB_NAME_AUDIT}:serverName=${ENV=DB_HOST}:user=${ENV=DB_USER}:password=${ENV=DB_PW}" sormasAuditlogPool
+create-jdbc-resource --connectionpoolid sormasAuditlogPool jdbc/AuditlogPool
+
+# explicit deploy order
+deploy /tmp/deploy/sormas-ear.ear
+deploy /tmp/deploy/sormas-rest.war
+deploy /tmp/deploy/sormas-ui.war

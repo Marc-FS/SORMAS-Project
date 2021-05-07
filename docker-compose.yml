@@ -1,0 +1,62 @@
+version: '2.3'
+
+services:
+  ### BEGIN GA A ###
+  postgres_a:
+    image: local/sormas-postgres
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
+    env_file:
+      - .env_a
+    volumes:
+      - psqldata_cargoserver_a:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  sormas_a:
+    build: .
+    env_file:
+      - .env_a
+    ports:
+      - 6048:4048
+      - 6080:6080
+    depends_on:
+      - postgres_a
+  ### END GA A ###
+
+  ### BEGIN GA B ###
+  postgres_b:
+    # todo due to a bug that Netzlink didn't fix in while I need my local image. Replace by official image later
+    image: local/sormas-postgres
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
+    env_file:
+      - .env_b
+    volumes:
+      - psqldata_cargoserver_b:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
+
+  sormas_b:
+    build: .
+    env_file:
+      - .env_b
+    ports:
+      - 7048:4048
+      - 7080:6080
+    depends_on:
+      - postgres_b
+  ### END GA B ###
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:12.0.4
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+    ports:
+      - 8080:8080
+    depends_on:
+      - sormas_a
+      - sormas_b
+
+volumes:
+  psqldata_cargoserver_a:
+  psqldata_cargoserver_b:
